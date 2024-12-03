@@ -7,12 +7,13 @@ export async function POST(request: Request) {
       { status: 200 }
     );
 
+    // Clear the 'token' cookie by setting it to an expired date
     response.cookies.set("token", "", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/",
-      expires: new Date(0),
+      secure: process.env.NODE_ENV === "production", // Set 'secure' in production
+      sameSite: "strict", // Ensure CSRF protection
+      path: "/", // Ensure the cookie is removed globally
+      expires: new Date(0), // Expiry date in the past to delete it
     });
 
     return response;
@@ -23,9 +24,11 @@ export async function POST(request: Request) {
         { status: 500 }
       );
     }
-    // Handle case when error is not an instance of Error
     return NextResponse.json(
-      { message: "Unknown error occurred from logout", error: "Unknown error" },
+      {
+        message: "Unknown error occurred during logout",
+        error: "Unknown error",
+      },
       { status: 500 }
     );
   }

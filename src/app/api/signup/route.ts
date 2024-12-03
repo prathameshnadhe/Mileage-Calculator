@@ -18,13 +18,13 @@ export async function POST(req: NextRequest) {
     await connect();
 
     // Check if the user already exists
-    // const userExists = await User.findOne({ email });
-    // if (userExists) {
-    //   return NextResponse.json(
-    //     { message: "User already exists" },
-    //     { status: 400 }
-    //   );
-    // }
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return NextResponse.json(
+        { message: "User already exists" },
+        { status: 400 }
+      );
+    }
 
     // Hash the password before saving
     const salt = await bycryptjs.genSalt(10);
@@ -36,7 +36,6 @@ export async function POST(req: NextRequest) {
       email,
       password: hashedPassword,
     });
-
 
     await newUser.save();
 

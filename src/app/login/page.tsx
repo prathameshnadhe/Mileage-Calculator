@@ -2,6 +2,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 const Login = () => {
   const router = useRouter();
@@ -9,8 +11,6 @@ const Login = () => {
     email: "",
     password: "",
   });
-
-  const [error, setError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -20,29 +20,32 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const response = await fetch("/api/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    });
+    try {
+      const response = await axios.post("/api/login", formData, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-    if (response.ok) {
-      router.push("/dashboard");
-    } else {
-      const data = await response.json();
-      setError(data.message);
+      if (response.status === 200) {
+        toast.success(response.data.message || "Login successful");
+        router.push("/dashboard");
+      }
+    } catch (error: any) {
+      if (error.response) {
+        toast.error(error.response.data.message || "Login failed");
+      } else {
+        toast.error("An unexpected error occurred. Please try again.");
+      }
     }
   };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-2xl max-sm:m-2">
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
           Login
         </h2>
-        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label
