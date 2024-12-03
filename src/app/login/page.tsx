@@ -4,9 +4,13 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import axios from "axios";
 import toast from "react-hot-toast";
+import openEye from "@/utils/images/open_eye.png";
+import closedEye from "@/utils/images/closed_eye.png";
+import Image from "next/image";
 
 const Login = () => {
   const router = useRouter();
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -39,6 +43,11 @@ const Login = () => {
       }
     }
   };
+
+  const togglePasswordVisibility = () => {
+    setIsPasswordVisible((prev) => !prev);
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-2xl max-sm:m-2">
@@ -62,11 +71,10 @@ const Login = () => {
               onChange={handleChange}
               className="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
               placeholder="Enter your email"
-              required
             />
           </div>
 
-          <div>
+          <div className="relative">
             <label
               htmlFor="password"
               className="block text-sm font-medium text-gray-700 mb-1"
@@ -74,15 +82,27 @@ const Login = () => {
               Password
             </label>
             <input
-              type="password"
+              type={isPasswordVisible ? "text" : "password"}
               id="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
               className="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
               placeholder="Enter your password"
-              required
             />
+            {formData.password && (
+              <div
+                onClick={togglePasswordVisibility}
+                className="absolute right-4 top-2/3 transform -translate-y-1/2 cursor-pointer opacity-[0.7]"
+              >
+                <Image
+                  src={isPasswordVisible ? closedEye : openEye}
+                  alt="eye"
+                  width={20}
+                  height={20}
+                />
+              </div>
+            )}
           </div>
 
           <button

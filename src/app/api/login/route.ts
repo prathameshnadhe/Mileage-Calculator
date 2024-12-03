@@ -7,6 +7,13 @@ export async function POST(request: Request) {
   try {
     const { email, password } = await request.json();
 
+    if (!email || !password) {
+      return NextResponse.json(
+        { message: "All fields are required" },
+        { status: 400 }
+      );
+    }
+
     const user = await User.findOne({ email });
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
