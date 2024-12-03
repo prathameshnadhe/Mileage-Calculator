@@ -1,36 +1,112 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Vehicle Management System
 
-## Getting Started
+## Features
 
-First, run the development server:
+### Authentication
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- User Login/Signup.
+- Authentication using OAuth (Google, GitHub) or email/password.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Vehicle Management
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Add, view, edit, and delete vehicles.
+- Separate dashboards for each vehicle.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Fuel Tracking
 
-## Learn More
+- Add fuel entries (date, odometer reading, fuel added, cost, and running distance).
+- Calculate mileage (e.g., kilometers per liter).
+- Show trends over time in a graph (e.g., mileage trends).
 
-To learn more about Next.js, take a look at the following resources:
+### Servicing & Expenses
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Add servicing details (date, description, cost).
+- List all expenses for a vehicle.
+- Show total expenses for a vehicle.
+- Visualize expenses in categories (e.g., servicing, repairs, other).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Dashboard
 
-## Deploy on Vercel
+- Overview of all vehicles, mileage, and expenses.
+- Show alerts for service intervals based on mileage or time.
+- Quick stats like total kilometers driven, total fuel cost, and total servicing cost.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Reports & Insights
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Monthly or yearly expense summary.
+- Identify the most expensive servicing types or frequent expenses.
+- Suggest fuel efficiency improvement tips.
+
+### Advanced Features (Optional)
+
+- Add reminders for servicing based on kilometers or dates.
+- Track insurance and PUC expiration dates with notifications.
+- Share reports via email or download as a PDF.
+
+---
+
+## Proposed Structure
+
+### Backend
+
+- **Framework:** Node.js (with Next.js API routes).
+- **Database:** MongoDB with Mongoose.
+- **Authentication:** JSON Web Tokens (JWT).
+
+### Frontend
+
+- **Framework:** Next.js (with TypeScript).
+- **Styling:** Tailwind CSS.
+- **State Management:** React Context API or Zustand.
+- **Charting:** Chart.js or Recharts (for trends and reports).
+
+---
+
+## Pages and Components
+
+### Authentication
+
+- **Login Page**
+- **Signup Page**
+
+### Dashboard
+
+- Overview of all vehicles.
+- Recent fuel and servicing logs.
+
+### Vehicle Management
+
+- **Add/Edit Vehicle Modal**
+- **Vehicle Details Page**
+
+### Fuel Tracking
+
+- **Add Fuel Entry Form**
+- **Fuel Logs Table**
+- **Mileage Chart**
+
+### Servicing & Expenses
+
+- **Add Servicing Form**
+- **Servicing Logs Table**
+- **Expense Breakdown Chart**
+
+### Reports
+
+- Generate PDF Reports.
+- Monthly/Yearly Summary Page.
+
+### Settings
+
+- Profile Management.
+- Notification Preferences.
+
+---
+
+## Technologies Used
+
+- **Backend:** Node.js, Next.js API Routes, Prisma ORM, PostgreSQL.
+- **Frontend:** Next.js with TypeScript, Tailwind CSS.
+- **State Management:** React Context API or Zustand.
+- **Authentication:** Supabase Auth or NextAuth.js.
+- **Charts:** Chart.js or Recharts.
