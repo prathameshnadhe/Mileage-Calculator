@@ -16,9 +16,11 @@ const SignUp = () => {
     email: "",
     password: "",
   });
+
   const [formErrors, setFormErrors] = useState({
     email: "",
     password: "",
+    general: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,59 +28,39 @@ const SignUp = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const validateEmail = (email: string) => {
-    const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-    return regex.test(email);
-  };
-
-  const validatePassword = (password: string) => {
-    // Password must have at least 8 characters, including 1 number, 1 uppercase letter, and 1 special character (dot is optional)
-    const regex =
-      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*\.?])[A-Za-z\d!@#$%^&*\.?]{8,}$/;
-    return regex.test(password);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    let isValid = true;
-    let errors = { email: "", password: "" };
+    try {
+      const response = await axios.post("/api/signup", formData, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-    // Validate email
-    if (!validateEmail(formData.email)) {
-      isValid = false;
-      errors.email = "Please enter a valid email.";
-    }
-
-    // Validate password
-    if (!validatePassword(formData.password)) {
-      isValid = false;
-      errors.password =
-        "Password must be at least 8 characters, include a number, an uppercase letter, and a special character.";
-    }
-
-    setFormErrors(errors);
-
-    if (isValid) {
-      try {
-        const response = await axios.post("/api/signup", formData, {
-          headers: {
-            "Content-Type": "application/json",
-          },
+      if (response.status === 201) {
+        toast.success(response.data.message || "Sign up successful");
+        router.push("/login");
+      } else {
+        setFormErrors({
+          ...formErrors,
+          general: response.data.message || "Error signing up",
         });
-
-        if (response.status === 201) {
-          toast.success(response.data.message || "Sign up successful");
-          router.push("/login");
-        } else {
-          toast.error(response.data.message || "Error signing up");
-        }
-      } catch (error: any) {
-        if (error.response) {
-          toast.error(error.response.data.message || "Signup failed");
-        } else {
-          toast.error("An error occurred during signup");
-        }
+        toast.error(response.data.message || "Signup failed");
+      }
+    } catch (error: any) {
+      if (error.response) {
+        setFormErrors({
+          ...formErrors,
+          general: error.response.data.message || "Signup failed",
+        });
+        toast.error(error.response.data.message || "Signup failed");
+      } else {
+        setFormErrors({
+          ...formErrors,
+          general: "An error occurred during signup",
+        });
+        toast.error("An error occurred during signup");
       }
     }
   };
@@ -127,11 +109,9 @@ const SignUp = () => {
               value={formData.email}
               onChange={handleChange}
               className={`w-full px-5 py-3 border rounded-lg focus:outline-none ${
-                formErrors.password ? "border-red-500" : "border-gray-300"
+                formErrors.email ? "border-red-500" : "border-gray-300"
               } rounded-lg focus:outline-none focus:ring-2 ${
-                formErrors.password
-                  ? "focus:ring-red-500"
-                  : "focus:ring-blue-500"
+                formErrors.email ? "focus:ring-red-500" : "focus:ring-blue-500"
               } transition duration-200`}
               placeholder="Enter your email"
             />
@@ -162,15 +142,10 @@ const SignUp = () => {
               } transition duration-200`}
               placeholder="Choose a strong password"
             />
-            {formErrors.password && (
-              <p className="text-sm text-red-500 mt-1">{formErrors.password}</p>
-            )}
             {formData.password && (
               <div
                 onClick={togglePasswordVisibility}
-                className={`absolute right-4 ${
-                  formErrors.password ? "top-1/3  mt-3" : "top-2/3"
-                } transform -translate-y-1/2 cursor-pointer opacity-[0.7]`}
+                className={`absolute right-4 top-2/3 transform -translate-y-1/2 cursor-pointer opacity-[0.7]`}
               >
                 <Image
                   src={isPasswordVisible ? closedEye : openEye}
@@ -192,7 +167,7 @@ const SignUp = () => {
 
         <p className="text-center mt-4 text-gray-600">
           Already have an account?{" "}
-          <Link href="/login" className="text-blue-600 font-semibold">
+          <Link href="/login" className="text-blue-600 hover:underline">
             Login here
           </Link>
         </p>

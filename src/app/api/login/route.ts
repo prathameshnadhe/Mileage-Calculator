@@ -2,9 +2,11 @@ import { NextResponse } from "next/server";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { connect } from "@/dbconfig/dbconfig";
 
 export async function POST(request: Request) {
   try {
+    await connect();
     const { email, password } = await request.json();
 
     if (!email || !password) {
@@ -13,10 +15,15 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+    console.log(email, password);
 
     const user = await User.findOne({ email });
+    console.log("user", user);
     if (!user) {
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "User does not exist" },
+        { status: 404 }
+      );
     }
 
     const isMatch = await bcrypt.compare(password, user.password);

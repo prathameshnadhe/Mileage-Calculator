@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
-import User from "../../../models/User";
+import { connect } from "@/dbconfig/dbconfig";
+import User from "@/models/User";
 import jwt from "jsonwebtoken";
 
 export async function GET(request: Request) {
   try {
+    await connect();
+
     // Get token from Authorization header
     const token = request.headers.get("Authorization")?.split(" ")[1];
 

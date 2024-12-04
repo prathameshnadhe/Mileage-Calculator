@@ -1,15 +1,47 @@
-// app/api/signup/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbconfig/dbconfig";
 import User from "@/models/User";
-import bycryptjs from "bcryptjs";
+import bcryptjs from "bcryptjs";
+
+// Utility function to validate email
+const validateEmail = (email: string) => {
+  const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+  return regex.test(email);
+};
+
+// Utility function to validate password strength
+const validatePassword = (password: string) => {
+  const regex =
+    /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*\.?])(?=.*[A-Z])[A-Za-z\d!@#$%^&*\.?]{8,}$/;
+  return regex.test(password);
+};
 
 export async function POST(req: NextRequest) {
   const { name, email, password } = await req.json();
 
+  // Check if all fields are provided
   if (!name || !email || !password) {
     return NextResponse.json(
       { message: "All fields are required" },
+      { status: 400 }
+    );
+  }
+
+  // Validate email format
+  if (!validateEmail(email)) {
+    return NextResponse.json(
+      { message: "Invalid email format" },
+      { status: 400 }
+    );
+  }
+
+  // Validate password strength
+  if (!validatePassword(password)) {
+    return NextResponse.json(
+      {
+        message:
+          "Password must be at least 8 characters, include a number, an uppercase letter, and a special character.",
+      },
       { status: 400 }
     );
   }
@@ -27,8 +59,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Hash the password before saving
-    const salt = await bycryptjs.genSalt(10);
-    const hashedPassword = await bycryptjs.hash(password, salt);
+    const salt = await bcryptjs.genSalt(10);
+    const hashedPassword = await bcryptjs.hash(password, salt);
 
     // Create new user
     const newUser = new User({

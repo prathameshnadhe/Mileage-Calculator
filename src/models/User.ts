@@ -1,12 +1,10 @@
 import mongoose, { Document, Schema } from "mongoose";
-import bcrypt from "bcryptjs";
 
 // Define the IUser interface extending mongoose's Document
 interface IUser extends Document {
   name: string;
   email: string;
   password: string;
-  comparePassword(password: string): Promise<boolean>;
 }
 
 const userSchema = new Schema<IUser>({
