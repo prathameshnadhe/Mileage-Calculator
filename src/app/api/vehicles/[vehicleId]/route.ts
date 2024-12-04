@@ -10,17 +10,25 @@ const connectDB = async () => {
   await connect();
 };
 
-export async function GET(
-  req: Request,
-  { params }: { params: { vehicleId: string } }
-) {
+// Helper function to extract `params` correctly
+const getParams = async (req: Request) => {
+  const url = new URL(req.url);
+  const vehicleId = url.pathname.split("/").pop(); // Extract `vehicleId` from the URL
+  if (!vehicleId) throw new Error("Vehicle ID is missing in the URL");
+  return { vehicleId };
+};
+
+// GET - Fetch vehicle by ID
+export async function GET(req: Request) {
   try {
     const user = await authenticateToken(req);
 
     await connectDB();
 
+    const { vehicleId } = await getParams(req);
+
     const vehicle = await Vehicle.findOne({
-      registrationNumber: params.vehicleId,
+      registrationNumber: vehicleId,
       userId: user.userId,
     });
 
@@ -39,7 +47,6 @@ export async function GET(
         { status: 500 }
       );
     }
-    // Handle case when error is not an instance of Error
     return NextResponse.json(
       {
         message: "Unknown error occurred while getting vehicle",
@@ -50,17 +57,13 @@ export async function GET(
   }
 }
 
-// PUT - Update vehicle by ID (registrationNumber)
-export async function PUT(
-  req: Request,
-  { params }: { params: { vehicleId: string } }
-) {
+// PUT - Update vehicle by ID
+export async function PUT(req: Request) {
   try {
     const user = await authenticateToken(req);
 
     const { name, vehicleType, initialOdometer } = await req.json();
 
-    // Validate the incoming data (basic validation)
     if (!name || !vehicleType || !initialOdometer) {
       return NextResponse.json(
         { message: "Missing required fields" },
@@ -70,9 +73,10 @@ export async function PUT(
 
     await connectDB();
 
-    // Update the vehicle with the provided `vehicleId` (registrationNumber)
+    const { vehicleId } = await getParams(req);
+
     const updatedVehicle = await Vehicle.findOneAndUpdate(
-      { registrationNumber: params.vehicleId, userId: user.userId },
+      { registrationNumber: vehicleId, userId: user.userId },
       { name, vehicleType, initialOdometer, updatedAt: new Date() },
       { new: true }
     );
@@ -92,7 +96,6 @@ export async function PUT(
         { status: 500 }
       );
     }
-    // Handle case when error is not an instance of Error
     return NextResponse.json(
       {
         message: "Unknown error occurred while updating vehicle",
@@ -103,18 +106,17 @@ export async function PUT(
   }
 }
 
-// DELETE - Delete vehicle by ID (registrationNumber)
-export async function DELETE(
-  req: Request,
-  { params }: { params: { vehicleId: string } }
-) {
+// DELETE - Delete vehicle by ID
+export async function DELETE(req: Request) {
   try {
     const user = await authenticateToken(req);
 
     await connectDB();
 
+    const { vehicleId } = await getParams(req);
+
     const deletedVehicle = await Vehicle.findOneAndDelete({
-      registrationNumber: params.vehicleId,
+      registrationNumber: vehicleId,
       userId: user.userId,
     });
 
@@ -130,7 +132,6 @@ export async function DELETE(
         { status: 500 }
       );
     }
-
     return NextResponse.json(
       {
         message: "Unknown error occurred while deleting vehicle",

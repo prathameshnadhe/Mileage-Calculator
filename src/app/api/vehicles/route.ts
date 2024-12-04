@@ -14,14 +14,15 @@ const connectDB = async () => {
 // POST /api/vehicles
 export async function POST(req: Request) {
   try {
+    await connectDB();
+
     const user = await authenticateToken(req);
+
     const { name, registrationNumber, vehicleType, initialOdometer } =
       await req.json();
 
     // Normalize registrationNumber to uppercase
     const normalizedRegistrationNumber = registrationNumber.toUpperCase();
-
-    await connectDB();
 
     const vehicle = new Vehicle({
       userId: user.userId,
@@ -59,9 +60,9 @@ export async function POST(req: Request) {
 // GET /api/vehicles
 export async function GET(req: Request) {
   try {
-    const user = await authenticateToken(req);
-
     await connectDB();
+
+    const user = await authenticateToken(req);
 
     // Fetch vehicles belonging to the authenticated user
     const vehicles = await Vehicle.find({ userId: user.userId });

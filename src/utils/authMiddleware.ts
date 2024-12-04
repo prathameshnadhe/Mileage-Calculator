@@ -1,6 +1,7 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 import User from "@/models/User";
 import { AuthenticatedUser } from "./types";
+import { connect } from "@/dbconfig/dbconfig";
 import { NextResponse } from "next/server";
 
 export const authenticateToken = async (
@@ -13,6 +14,7 @@ export const authenticateToken = async (
   }
 
   try {
+    await connect();
     // Verify the token and assert the type as JwtPayload
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload & {
       userId: string;
