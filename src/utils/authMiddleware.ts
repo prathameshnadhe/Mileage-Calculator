@@ -2,20 +2,20 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import User from "@/models/User";
 import { AuthenticatedUser } from "./types";
 import { connect } from "@/dbconfig/dbconfig";
-import { NextResponse } from "next/server";
+import { cookies } from "next/headers"; // Use next/headers for accessing cookies in the app directory
 
-export const authenticateToken = async (
-  req: Request
-): Promise<AuthenticatedUser> => {
-  const token = req.headers.get("Authorization")?.split(" ")[1];
+export const authenticateToken = async (): Promise<AuthenticatedUser> => {
+  const cookieStore = cookies(); // Get the cookie store
+  const token = (await cookieStore).get("token")?.value;
 
   if (!token) {
-    throw new Error("No token provided");
+    throw new Error("No token provided"); // If no token is found in cookies
   }
 
   try {
-    await connect();
-    // Verify the token and assert the type as JwtPayload
+    await connect(); // Connect to the database
+
+    // Verify the token and assert the type as JwtPayload with additional userId field
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload & {
       userId: string;
     };
@@ -31,7 +31,7 @@ export const authenticateToken = async (
       throw new Error("Unauthorized User");
     }
 
-    // Return the user details as an AuthenticatedUser
+    // Return the decoded user information
     return decoded as AuthenticatedUser;
   } catch (error) {
     console.error("Error authenticating token:", error);

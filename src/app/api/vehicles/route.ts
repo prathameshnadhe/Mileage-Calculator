@@ -3,7 +3,6 @@ import Vehicle from "@/models/Vehicle";
 import { connect } from "@/dbconfig/dbconfig";
 import mongoose from "mongoose";
 import { authenticateToken } from "@/utils/authMiddleware";
-import { AuthenticatedUser } from "@/utils/types";
 
 // Helper function to connect to the MongoDB database
 const connectDB = async () => {
@@ -16,18 +15,24 @@ export async function POST(req: Request) {
   try {
     await connectDB();
 
-    const user = await authenticateToken(req);
+    const user = await authenticateToken();
 
     const { name, registrationNumber, vehicleType, initialOdometer } =
       await req.json();
 
-    // Normalize registrationNumber to uppercase
-    const normalizedRegistrationNumber = registrationNumber.toUpperCase();
+    const checkVehicle = await Vehicle.findOne({ registrationNumber });
+
+    if (checkVehicle) {
+      return NextResponse.json(
+        { message: "A vehicle with this registration number already exists." },
+        { status: 400 } // You can use 400 for client errors like this
+      );
+    }
 
     const vehicle = new Vehicle({
       userId: user.userId,
       name,
-      registrationNumber: normalizedRegistrationNumber,
+      registrationNumber,
       vehicleType,
       initialOdometer,
     });
@@ -40,7 +45,7 @@ export async function POST(req: Request) {
     });
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("Error creating vehicle:", error);
+      console.log("Error creating vehicle:", error);
       return NextResponse.json(
         { message: "Failed to add vehicle", error: error.message },
         { status: 500 }
@@ -62,7 +67,7 @@ export async function GET(req: Request) {
   try {
     await connectDB();
 
-    const user = await authenticateToken(req);
+    const user = await authenticateToken();
 
     // Fetch vehicles belonging to the authenticated user
     const vehicles = await Vehicle.find({ userId: user.userId });

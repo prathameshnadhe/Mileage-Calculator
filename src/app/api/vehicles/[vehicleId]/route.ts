@@ -21,7 +21,7 @@ const getParams = async (req: Request) => {
 // GET - Fetch vehicle by ID
 export async function GET(req: Request) {
   try {
-    const user = await authenticateToken(req);
+    const user = await authenticateToken();
 
     await connectDB();
 
@@ -60,7 +60,7 @@ export async function GET(req: Request) {
 // PUT - Update vehicle by ID
 export async function PUT(req: Request) {
   try {
-    const user = await authenticateToken(req);
+    const user = await authenticateToken();
 
     const { name, vehicleType, initialOdometer } = await req.json();
 
@@ -109,7 +109,7 @@ export async function PUT(req: Request) {
 // DELETE - Delete vehicle by ID
 export async function DELETE(req: Request) {
   try {
-    const user = await authenticateToken(req);
+    const user = await authenticateToken();
 
     await connectDB();
 
