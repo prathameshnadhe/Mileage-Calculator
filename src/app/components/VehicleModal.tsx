@@ -54,8 +54,8 @@ const VehicleModal: React.FC<VehicleModalProps> = ({
       className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center modal-overlay"
       onClick={handleClickOutside}
     >
-      <div className="bg-white p-8 rounded-lg shadow-xl w-1/3 relative transition-all transform scale-95 hover:scale-100">
-        <h3 className="text-2xl font-semibold mb-6 text-center text-blue-600">
+      <div className="bg-white p-6 rounded-lg shadow-xl w-11/12 sm:w-1/2 md:w-1/3 relative transition-all transform">
+        <h3 className="text-2xl font-bold mb-4 text-center text-blue-600">
           Add Vehicle
         </h3>
         <form onSubmit={handleSubmit}>
@@ -68,12 +68,12 @@ const VehicleModal: React.FC<VehicleModalProps> = ({
               name="name"
               value={vehicleData.name}
               onChange={handleInputChange}
-              className="w-full border rounded-lg p-3 text-gray-700 focus:ring-2 focus:ring-blue-500 transition-all duration-300 ease-in-out"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
               required
               placeholder="Enter vehicle name"
             />
           </div>
-          <div className="mb-6">
+          <div className="mb-6 relative">
             <label className="block text-sm font-medium mb-2 text-gray-700">
               Model
             </label>
@@ -81,13 +81,29 @@ const VehicleModal: React.FC<VehicleModalProps> = ({
               name="vehicleType"
               value={vehicleData.vehicleType}
               onChange={handleModelChange}
-              className="w-full border rounded-lg p-3 text-gray-700 focus:ring-2 focus:ring-blue-500 transition-all duration-300 ease-in-out"
+              className="w-full p-3 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
             >
               <option value="Bike">Bike</option>
               <option value="Car">Car</option>
               <option value="Other">Other</option>
             </select>
+            {/* Custom Arrow */}
+            <div className="absolute top-2/3 right-3 transform -translate-y-1/2 pointer-events-none">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-5 h-5 text-gray-600"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 01.02-1.06z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
           </div>
+
           <div className="mb-6">
             <label className="block text-sm font-medium mb-2 text-gray-700">
               Registration Number
@@ -103,9 +119,9 @@ const VehicleModal: React.FC<VehicleModalProps> = ({
                   registrationNumber: noSpacesValue.toUpperCase(),
                 });
               }}
-              className="w-full border rounded-lg p-3 text-gray-700 focus:ring-2 focus:ring-blue-500 transition-all duration-300 ease-in-out"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
               required
-              placeholder="ABC1234"
+              placeholder="MH12AB1234"
             />
           </div>
           <div className="mb-6">
@@ -123,12 +139,12 @@ const VehicleModal: React.FC<VehicleModalProps> = ({
                   initialOdometer: noSpacesValue,
                 });
               }}
-              className="w-full border rounded-lg p-3 text-gray-700 focus:ring-2 focus:ring-blue-500 transition-all duration-300 ease-in-out"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
               required
               placeholder="Enter odometer value"
             />
           </div>
-          <div className="flex justify-between items-center mt-6 space-x-4">
+          <div className="flex justify-between items-center mt-6 space-x-4 flex-wrap">
             <button
               type="button"
               className="px-6 py-3 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition-all duration-300"

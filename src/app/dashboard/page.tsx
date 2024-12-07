@@ -7,8 +7,11 @@ import axios, { AxiosResponse } from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import Sidebar from "@/app/components/Sidebar";
 import VehicleModal from "@/app/components/VehicleModal";
+import VehicleCard from "@/app/components/VehicleCard";
+import Bar from "@/utils/images/black_bar.png";
+import Image from "next/image";
 
-interface Vehicle {
+export interface Vehicle {
   _id: string;
   name: string;
   vehicleType: string;
@@ -28,6 +31,7 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("vehicles");
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   useEffect(() => {
     const token = Cookies.get("token");
@@ -52,21 +56,6 @@ const Dashboard = () => {
 
     fetchVehicles();
   }, []);
-
-  const handleLogout = async () => {
-    try {
-      const response = await axios.post("/api/logout");
-      if (response.status === 200) {
-        toast.success(response.data.message || "User logged out successfully");
-        router.push("/login");
-      } else {
-        toast.error(response.data.message || "Error logging out");
-      }
-    } catch (error: any) {
-      console.error("Logout Error:", error.message);
-      toast.error(error.message);
-    }
-  };
 
   const handleAddVehicle = async (vehicle: NewVehicle) => {
     try {
@@ -93,68 +82,97 @@ const Dashboard = () => {
     }
   };
 
+  const handleEditVehicle = async (updatedVehicle: Vehicle) => {
+    try {
+      const response = await axios.put(
+        `/api/vehicles/${updatedVehicle.registrationNumber}`,
+        updatedVehicle,
+        {
+          withCredentials: true,
+        }
+      );
+
+      if (response.status === 200) {
+        setVehicles((prevVehicles) =>
+          prevVehicles.map((v) =>
+            v._id === updatedVehicle._id ? { ...v, ...updatedVehicle } : v
+          )
+        );
+        toast.success("Vehicle updated successfully");
+      }
+    } catch (error: any) {
+      if (error.response && error.response.status === "404") {
+        toast.error(error.response.data.error || "Failed to update vehicle");
+      } else {
+        toast.error("Failed to update vehicle");
+      }
+      console.error("Error updating vehicle:", error.message);
+    }
+  };
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen((prev) => !prev);
+  };
+
   return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-
-      <div className="flex-1 p-8">
+    <div className="flex h-screen bg-gradient-to-r from-blue-200 to-blue-100">
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        isOpen={isSidebarOpen}
+        toggleSidebar={toggleSidebar}
+      />
+      <div className="flex-1 p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg mt-10 mx-4 lg:mx-10 overflow-y-auto">
         <Toaster />
-
+        <button
+          className="lg:hidden px-4 py-2 bg-gray-300 shadow-lg hover:bg-gray-400 rounded-lg mb-4"
+          onClick={toggleSidebar}
+        >
+          <Image src={Bar} width={50} height={50} alt="Sidebar Toggle" />
+        </button>
         <div className="flex justify-between items-center mb-8">
-          <div className="text-xl font-semibold">Welcome to the Dashboard</div>
-          <button
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-            onClick={handleLogout}
-          >
-            Log out
-          </button>
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
+            Dashboard
+          </h2>
+          <div className="flex items-center space-x-4">
+            <button
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-300"
+              onClick={() => setIsModalOpen(true)}
+            >
+              Add Vehicle
+            </button>
+          </div>
         </div>
 
+        {/* Vehicle Section */}
         {activeTab === "vehicles" && (
           <div>
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-semibold">Vehicles</h3>
-              <button
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                onClick={() => setIsModalOpen(true)}
-              >
-                Add Vehicle
-              </button>
+              <h3 className="text-xl sm:text-2xl font-semibold text-gray-700">
+                Vehicles
+              </h3>
             </div>
+
             {vehicles.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-6 cursor-pointer">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {vehicles.map((vehicle) => (
-                  <div
+                  <VehicleCard
                     key={vehicle._id}
-                    className="bg-white p-6 rounded-lg shadow-lg flex flex-col space-y-2"
-                  >
-                    <h3 className="text-lg font-bold">{vehicle.name}</h3>
-                    <p className="text-sm text-gray-600">
-                      Type: {vehicle.vehicleType}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Reg. Number:{" "}
-                      <span className="font-bold">
-                        {vehicle.registrationNumber}
-                      </span>
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Odometer:{" "}
-                      <span className="font-bold">
-                        {vehicle.initialOdometer} KM
-                      </span>
-                    </p>
-                  </div>
+                    vehicle={vehicle}
+                    onEdit={handleEditVehicle}
+                  />
                 ))}
               </div>
             ) : (
               <div className="bg-white p-6 rounded-lg shadow-md">
-                <p>No vehicles available. Please add some!</p>
+                <p className="text-gray-700">
+                  No vehicles available. Please add some!
+                </p>
               </div>
             )}
           </div>
         )}
-
+        {/* Modal for Adding Vehicle */}
         <VehicleModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
