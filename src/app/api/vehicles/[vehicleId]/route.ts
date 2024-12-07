@@ -76,7 +76,10 @@ export async function PUT(req: Request) {
     const { vehicleId } = await getParams(req);
 
     const updatedVehicle = await Vehicle.findOneAndUpdate(
-      { registrationNumber: vehicleId, userId: user.userId },
+      {
+        registrationNumber: vehicleId,
+        userId: new mongoose.Types.ObjectId(user.userId),
+      },
       { name, vehicleType, initialOdometer, updatedAt: new Date() },
       { new: true }
     );
